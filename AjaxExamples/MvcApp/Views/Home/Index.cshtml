@@ -1,0 +1,194 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<style>
+    table {
+        background-color: #e6e6e6;
+    }
+
+    label{
+        font-weight:bolder;
+    }
+
+    table th,td {
+        padding: 10px;
+    }
+
+    .vl {
+        border-left: 2px solid #000000;
+        height: 310px;
+    }
+
+</style>
+
+<br />
+<br />
+<br />
+
+<div class="row">
+    <div class="col-md-4">
+        <table class="col-md-12" id="tableAdd">
+            <tbody>
+                <tr>
+                    <th><label>AD</label></th>
+                    <td>
+                        <input id="inputName" class="form-control" placeholder="Öğrenci Adı Giriniz" />
+                    </td>
+                </tr>
+                <tr>
+                    <th><label>SOYAD</label></th>
+                    <td>
+                        <input id="inputSurname" class="form-control" placeholder="Öğrenci Soyadı Giriniz" />
+                    </td>
+                </tr>
+                <tr>
+                    <th><label>YAŞ</label></th>
+                    <td>
+                        <input id="inputAge" class="form-control" type="number" placeholder="Öğrenci Yaş Giriniz" />
+                    </td>
+                </tr>
+                <tr>
+                    <th><label>OKUL</label></th>
+                    <td>
+                        <input id="inputSchool" class="form-control" placeholder="Okul Adı Giriniz" />
+                    </td>
+                </tr>
+                <tr>
+                    <th><label>SINIF</label></th>
+                    <td>
+                        <input id="inputClass" class="form-control" placeholder="Sınıf Giriniz" />
+                    </td>
+                </tr>
+              
+            </tbody>
+        </table>
+        <button class="form-control btn btn-success col-md-12" onclick="insertOrUpdateStudent()"> Kaydet </button>
+    </div>
+    <div class="col-md-1">
+        <div class="vl"></div>
+    </div>
+    <div class="col-md-7">
+        <table>
+            <thead>
+                <tr>
+                    <th><label>AD</label></th>
+                    <th><label>SOYAD</label></th>
+                    <th><label>YAŞ</label></th>
+                    <th><label>OKUL</label></th>
+                    <th><label>SINIF</label></th>
+                    @*<th><label>İŞLEMLER</label></th>*@
+                </tr>
+            </thead>
+            <tbody id="studentList"></tbody>
+        </table>
+
+
+    </div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+
+
+<script type="text/javascript">
+
+
+    var student = {
+        Name   : '',
+        Surname: '',
+        Age    : '',
+        School : '',
+        Class  : ''
+    };
+
+
+
+    $(document).ready(function () {
+
+        studentDefault = student;
+
+        $.ajax({
+            url: '/Home/GetListStudent/',
+            type: 'POST',
+            dataType: 'json',
+            success: function (data) {
+
+                $.each(data, function (i, item) {
+                    $("#studentList").append(
+                        "<tr>"
+                            +"<td>"+ item.Name + "</td>"
+                            +"<td>"+ item.Surname +"</td>"
+                            +"<td>"+ item.Age +"</td>"
+                            +"<td>"+ item.School +"</td>"
+                            + "<td>" + item.Class + "</td>"
+                        //+ "<td><a href='#'>Güncelle</a> - <a href='#'>Sil</a><td>"
+
+                        +"</tr >"
+                    );
+                });
+
+            }
+        });
+    });
+
+    function insertOrUpdateStudent() {
+
+        student = {
+            Name   : $('#inputName').val(),
+            Surname: $('#inputSurname').val(),
+            Age    : $('#inputAge').val(),
+            School : $('#inputSchool').val(),
+            Class  : $('#inputClass').val(),
+        };
+
+        $.ajax({
+            url: '/Home/InsertOrUpdateStudent/',
+            type: 'POST',
+            dataType: 'json',
+            data: student,
+            success: function (data) {
+
+
+                //Var olan kayıtları ekrandan sil
+                $("#studentList tr").remove();
+
+                //Yeni kayıtları ekrana diz
+                $.each(data, function (i, item) {
+
+                    $("#studentList").append(
+                        "<tr>"
+                        + "<td>" + item.Name + "</td>"
+                        + "<td>" + item.Surname + "</td>"
+                        + "<td>" + item.Age + "</td>"
+                        + "<td>" + item.School + "</td>"
+                        + "<td>" + item.Class + "</td>"
+                        //+ "<td><a href='#'>Güncelle</a> - <a href='#'>Sil</a><td>"
+
+                        + "</tr >"
+                    );
+                });
+
+                //Kayıt için kullanılan nesneyi temizle
+                clearStudent();
+            }
+        });
+    };
+
+
+    function clearStudent() {
+        $('#inputName').val('');
+        $('#inputSurname').val('');
+        $('#inputAge').val('');
+        $('#inputSchool').val('');
+        $('#inputClass').val('');
+
+        student.Name = '';
+        student.Surname = '';
+        student.Age = '';
+        student.School = '';
+        student.Class = '';
+
+    };
+    
+</script>
